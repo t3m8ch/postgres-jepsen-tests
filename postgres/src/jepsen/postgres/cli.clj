@@ -89,7 +89,7 @@
                            :interval  (:nemesis-interval opts)}))]
     (merge tests/noop-test
            opts
-           {:name (str "postgres " (name workload-name)
+           {:name (str "postgres " (name (:variant opts)) " " (name workload-name)
                        " " (short-isolation (:isolation opts)) " ("
                        (short-isolation (:expected-consistency-model opts)) ")"
                        (when-let [ns (:nemesis opts)]
@@ -120,6 +120,11 @@
   [
    [nil "--existing-postgres" "If set, assumes nodes already have a running Postgres instance, skipping any OS and DB setup and teardown. Suitable for testing a local instance of Postgres (or some sort of pre-built cluster, like RDS) when you don't want to set up a whole-ass Jepsen environment."
     :default false]
+
+   [nil "--variant NAME" "Which locally built Postgres to test: vanilla (upstream) or oriole (OrioleDB-patched Postgres with OrioleDB as the default table access method). Builds must be installed on nodes; see jepsen.postgres.db/variants."
+    :default :vanilla
+    :parse-fn keyword
+    :validate [db/variants (cli/one-of db/variants)]]
 
    [nil "--nemesis FAULTS" "A comma-separated list of nemesis faults to enable"
      :parse-fn parse-nemesis-spec
